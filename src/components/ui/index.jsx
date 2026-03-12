@@ -1,10 +1,8 @@
 // src/components/ui/index.jsx
-// Reusable primitive components used across every page.
 
 import { useState, forwardRef } from "react";
 import { Eye, EyeOff, Loader2, X } from "lucide-react";
 
-// ── Button ─────────────────────────────────────────────────────────────────
 export const Btn = forwardRef(function Btn(
   { children, variant = "green", size = "md", loading = false, className = "", ...props },
   ref
@@ -20,7 +18,6 @@ export const Btn = forwardRef(function Btn(
   );
 });
 
-// ── Input ──────────────────────────────────────────────────────────────────
 export const Input = forwardRef(function Input(
   { label, error, hint, type = "text", className = "", ...props },
   ref
@@ -47,7 +44,6 @@ export const Input = forwardRef(function Input(
   );
 });
 
-// ── Select ─────────────────────────────────────────────────────────────────
 export const Select = forwardRef(function Select(
   { label, error, children, className = "", ...props },
   ref
@@ -63,24 +59,20 @@ export const Select = forwardRef(function Select(
   );
 });
 
-// ── Badge ──────────────────────────────────────────────────────────────────
 export function Badge({ children, variant = "green" }) {
   const v = { green: "badge badge-green", amber: "badge badge-amber", blue: "badge badge-blue", muted: "badge badge-muted" };
   return <span className={v[variant] || "badge badge-muted"}>{children}</span>;
 }
 
-// ── Spinner ────────────────────────────────────────────────────────────────
 export function Spinner({ size = "md", className = "" }) {
   const s = { sm: "w-4 h-4 border", md: "w-8 h-8 border-2", lg: "w-12 h-12 border-2" };
   return <div className={`${s[size]} rounded-full border-[var(--border)] border-t-[var(--green)] animate-spin ${className}`} />;
 }
 
-// ── Skeleton ───────────────────────────────────────────────────────────────
 export function Skel({ className = "" }) {
   return <div className={`skeleton ${className}`} />;
 }
 
-// ── Modal ──────────────────────────────────────────────────────────────────
 export function Modal({ open, onClose, title, children, size = "md" }) {
   if (!open) return null;
   const widths = { sm: "max-w-sm", md: "max-w-lg", lg: "max-w-2xl", xl: "max-w-4xl" };
@@ -101,7 +93,6 @@ export function Modal({ open, onClose, title, children, size = "md" }) {
   );
 }
 
-// ── Toast notification ─────────────────────────────────────────────────────
 export function Toast({ message, type = "success", onClose }) {
   const styles = {
     success: "border-l-4 border-green-400 bg-green-50 dark:bg-green-950/40 text-green-800 dark:text-green-300",
@@ -116,7 +107,6 @@ export function Toast({ message, type = "success", onClose }) {
   );
 }
 
-// ── Error box ──────────────────────────────────────────────────────────────
 export function ErrBox({ msg }) {
   if (!msg) return null;
   return (

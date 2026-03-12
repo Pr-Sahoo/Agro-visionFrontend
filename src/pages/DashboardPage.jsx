@@ -8,7 +8,7 @@ import { cropAPI, weatherAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { Badge, Skel } from "../components/ui";
 
-// ── Stat card ──────────────────────────────────────────────────────────────
+
 function StatCard({ icon: Icon, label, value, sub, accent = "#2a9a2a", delay = 0 }) {
   return (
     <div className="card p-6 card-hover animate-slide-up" style={{ animationDelay: `${delay}ms` }}>
@@ -23,7 +23,7 @@ function StatCard({ icon: Icon, label, value, sub, accent = "#2a9a2a", delay = 0
   );
 }
 
-// ── Mini crop row ──────────────────────────────────────────────────────────
+
 function CropRow({ crop, i }) {
   const days = crop.harvestTarget
     ? Math.ceil((new Date(crop.harvestTarget) - Date.now()) / 86400000)
@@ -56,7 +56,7 @@ function CropRow({ crop, i }) {
   );
 }
 
-// ── Weather mini widget ────────────────────────────────────────────────────
+
 function WeatherMini({ w }) {
   if (!w || !w.current) return (
     <div className="card p-6 text-center animate-fade-in">
@@ -99,7 +99,6 @@ function WeatherMini({ w }) {
   );
 }
 
-// ── Dashboard ──────────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const { user }  = useAuth();
   const [crops,   setCrops]   = useState([]);   // ALWAYS [] — never undefined
@@ -112,13 +111,11 @@ export default function DashboardPage() {
       try {
         const res = await cropAPI.getAll();
 
-        // ── SAFE DESTRUCTURE ─────────────────────────────────────────────
         // Your backend returns: { crops: [...] }
         // But we guard against: null, undefined, wrong shape
         const safeCrops = Array.isArray(res?.crops) ? res.crops
                         : Array.isArray(res)         ? res
                         : [];
-        // ────────────────────────────────────────────────────────────────
 
         setCrops(safeCrops);
 

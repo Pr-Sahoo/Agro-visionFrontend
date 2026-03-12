@@ -8,7 +8,7 @@ import { useAuth }  from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { Btn, Input, ErrBox } from "../components/ui";
 
-// ── Shared split layout ───────────────────────────────────────────────────────
+
 function AuthShell({ title, subtitle, children }) {
   const { dark, toggle } = useTheme();
   return (
@@ -77,7 +77,7 @@ function AuthShell({ title, subtitle, children }) {
   );
 }
 
-// ── REGISTER ──────────────────────────────────────────────────────────────────
+
 export function RegisterPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "", phone: "" });
@@ -121,7 +121,7 @@ export function RegisterPage() {
   );
 }
 
-// ── VERIFY OTP ────────────────────────────────────────────────────────────────
+
 export function VerifyOTPPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -172,7 +172,6 @@ export function VerifyOTPPage() {
   );
 }
 
-// ── LOGIN ─────────────────────────────────────────────────────────────────────
 export function LoginPage() {
   const navigate   = useNavigate();
   const { login }  = useAuth();

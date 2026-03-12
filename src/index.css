@@ -2,17 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─────────────────────────────────────────────────────────────
-   CSS VARIABLES
-   Light mode = white background, dark green text
-   Dark  mode = dark background, light green text
-   Every component reads these vars so theme switch is instant.
-───────────────────────────────────────────────────────────── */
+
 :root {
   --bg:     #f2f7ef;
   --bg2:    #e4ede0;
   --card:   #ffffff;
-  --text:   #1a2e1a;       /* dark green — readable on white */
+  --text:   #1a2e1a;     
   --text2:  #3d5c38;
   --muted:  #6b8c63;
   --border: #ccddc5;
@@ -20,12 +15,11 @@
   --amber:  #b86e1f;
 }
 
-/* Dark mode overrides */
 .dark {
   --bg:     #0c180c;
   --bg2:    #131f13;
   --card:   #172017;
-  --text:   #e8f5e3;       /* light — readable on dark */
+  --text:   #e8f5e3;       
   --text2:  #a8c8a0;
   --muted:  #6a9060;
   --border: #2a3e2a;
@@ -33,29 +27,28 @@
   --amber:  #d48a3a;
 }
 
-/* ─── Base ───────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 
 body {
   font-family: "DM Sans", sans-serif;
   background-color: var(--bg);
-  color: var(--text);           /* ← this is the fix for light mode text */
+  color: var(--text);           
   min-height: 100vh;
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* ─── Scrollbar ──────────────────────────────────────────── */
+
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: var(--bg2); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
-/* ─── Selection ──────────────────────────────────────────── */
+
 ::selection { background: rgba(42,154,42,0.2); color: var(--text); }
 
-/* ─── Animated orb backgrounds ──────────────────────────── */
+
 .orb {
   position: absolute;
   border-radius: 9999px;
@@ -66,7 +59,7 @@ body {
 }
 .dark .orb { opacity: 0.08; }
 
-/* ─── Component classes ──────────────────────────────────── */
+
 @layer components {
 
   /* Glass navbar */
@@ -100,7 +93,7 @@ body {
     border: 1.5px solid var(--border);
     border-radius: 0.875rem;
     padding: 0.7rem 1rem;
-    color: var(--text);           /* ← text inside inputs */
+    color: var(--text);           
     font-family: "DM Sans", sans-serif;
     font-size: 0.875rem;
     outline: none;
@@ -205,7 +198,6 @@ body {
   }
 }
 
-/* ─── Keyframes ──────────────────────────────────────────── */
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   50%       { transform: translateY(-18px) rotate(2deg); }
@@ -241,7 +233,6 @@ body {
   40%           { transform: scale(1);   opacity: 1;   }
 }
 
-/* ─── Utility animation classes ──────────────────────────── */
 .animate-slide-up   { animation: slideUp   0.45s cubic-bezier(0.16,1,0.3,1) forwards; }
 .animate-slide-down { animation: slideDown 0.35s cubic-bezier(0.16,1,0.3,1) forwards; }
 .animate-fade-in    { animation: fadeIn    0.35s ease forwards; }
@@ -253,7 +244,7 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes pulse { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
 
-/* ─── AI response text ───────────────────────────────────── */
+
 .ai-text {
   line-height: 1.8;
   white-space: pre-wrap;

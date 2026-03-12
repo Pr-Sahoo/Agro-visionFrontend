@@ -1,193 +1,5 @@
-// // src/pages/WeatherPage.jsx
-
-// import { useState, useEffect } from "react";
-// import { CloudSun, Droplets, Wind, Thermometer, Eye, RefreshCw, MapPin, Gauge } from "lucide-react";
-// import PageLayout from "../components/layout/PageLayout";
-// import { cropAPI, weatherAPI } from "../services/api";
-// import { Select, Spinner, Skel } from "../components/ui";
-
-// // ── Weather icon by description ────────────────────────────────────────────
-// function WIcon({ desc = "", cls = "w-8 h-8" }) {
-//   const d = desc.toLowerCase();
-//   const emoji = d.includes("thunder") ? "⛈️" : d.includes("rain") ? "🌧️" : d.includes("cloud") ? "☁️" : d.includes("clear") || d.includes("sunny") ? "☀️" : "🌤️";
-//   return <span className={`text-3xl ${cls === "w-8 h-8" ? "" : "text-5xl"}`}>{emoji}</span>;
-// }
-
-// // ── Forecast card ──────────────────────────────────────────────────────────
-// function ForecastCard({ day, i }) {
-//   const date = new Date(day.date);
-//   const label = i === 0 ? "Today" : i === 1 ? "Tmrw" : date.toLocaleDateString("en-IN", { weekday: "short" });
-//   const hasRain = parseFloat(day.totalRain) > 0;
-//   return (
-//     <div className="card p-4 text-center card-hover animate-slide-up" style={{ animationDelay: `${i * 60}ms` }}>
-//       <p className="text-xs font-semibold text-[var(--muted)] mb-3">{label}</p>
-//       <WIcon desc={day.condition} />
-//       <p className="text-sm font-bold text-[var(--text)] mt-3">{day.tempMax}°</p>
-//       <p className="text-xs text-[var(--muted)]">{day.tempMin}°</p>
-//       <p className="text-xs text-[var(--muted)] capitalize mt-1.5 leading-tight text-[10px]">{day.condition}</p>
-//       {hasRain && <p className="text-xs text-blue-400 mt-1.5 font-medium">💧 {day.totalRain}mm</p>}
-//     </div>
-//   );
-// }
-
-// // ── Current weather hero ───────────────────────────────────────────────────
-// function CurrentHero({ c }) {
-//   const desc = c.description?.toLowerCase() || "";
-//   const [from, to] = desc.includes("rain") ? ["#3b82f6","#1d4ed8"]
-//                    : desc.includes("cloud") ? ["#64748b","#334155"]
-//                    : desc.includes("clear") || desc.includes("sunny") ? ["#f59e0b","#d97706"]
-//                    : ["#2a9a2a","#1e7a1e"];
-
-//   const stats = [
-//     { icon: Droplets,    l: "Humidity",   v: `${c.humidity}%`                   },
-//     { icon: Wind,        l: "Wind",       v: `${c.windSpeed} m/s`               },
-//     { icon: Thermometer, l: "Feels Like", v: `${Math.round(c.feelsLike)}°C`    },
-//     { icon: Gauge,       l: "Pressure",   v: `${c.pressure} hPa`               },
-//     { icon: Eye,         l: "Visibility", v: `${(c.visibility/1000).toFixed(1)}km` },
-//     { icon: CloudSun,    l: "Rain (1h)",  v: `${c.rain1h ?? 0}mm`              },
-//   ];
-
-//   return (
-//     <div className="rounded-3xl p-8 text-white relative overflow-hidden animate-slide-up"
-//       style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}>
-//       <div className="absolute inset-0 bg-black/10" />
-//       <div className="absolute top-6 right-8 text-6xl opacity-20 animate-float">
-//         <WIcon desc={c.description} cls="text-6xl" />
-//       </div>
-//       <div className="relative z-10">
-//         <div className="flex items-center gap-2 mb-2 text-white/70">
-//           <MapPin className="w-4 h-4" />
-//           <span className="font-medium text-sm">{c.city}</span>
-//         </div>
-//         <div className="flex items-end gap-4 mb-1">
-//           <span className="text-8xl font-display font-bold leading-none">{Math.round(c.temp)}°</span>
-//           <div className="pb-3">
-//             <p className="capitalize text-xl text-white/90">{c.description}</p>
-//             <p className="text-white/50 text-sm mt-1">
-//               {new Date().toLocaleDateString("en-IN", { weekday: "long", month: "long", day: "numeric" })}
-//             </p>
-//           </div>
-//         </div>
-//         <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 mt-6 pt-5 border-t border-white/20">
-//           {stats.map(({ icon: I, l, v }) => (
-//             <div key={l} className="text-center">
-//               <I className="w-4 h-4 text-white/60 mx-auto mb-1" />
-//               <p className="text-white font-semibold text-sm">{v}</p>
-//               <p className="text-white/50 text-xs">{l}</p>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// // ── Main ───────────────────────────────────────────────────────────────────
-// export default function WeatherPage() {
-//   const [crops,   setCrops]   = useState([]);
-//   const [cropId,  setCropId]  = useState("");
-//   const [weather, setWeather] = useState(null);
-//   const [loading, setLoading] = useState(false);
-//   const [cropsLoad, setCropsLoad] = useState(true);
-//   const [error,   setError]   = useState("");
-//   const [spinning, setSpinning] = useState(false);
-
-//   useEffect(() => {
-//     cropAPI.getAll().then(({ crops }) => {
-//       setCrops(crops);
-//       if (crops.length > 0) setCropId(crops[0]._id);
-//     }).finally(() => setCropsLoad(false));
-//   }, []);
-
-//   useEffect(() => {
-//     if (!cropId) return;
-//     setLoading(true); setError("");
-//     weatherAPI.byCrop(cropId).then(setWeather).catch(e => setError(e.message)).finally(() => setLoading(false));
-//   }, [cropId]);
-
-//   const refresh = async () => {
-//     if (!cropId) return;
-//     setSpinning(true);
-//     try { setWeather(await weatherAPI.byCrop(cropId)); } catch { }
-//     finally { setSpinning(false); }
-//   };
-
-//   return (
-//     <PageLayout>
-//       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-//         <div>
-//           <h1 className="font-display text-3xl font-bold text-[var(--text)]">Weather</h1>
-//           <p className="text-[var(--text2)] text-sm mt-1">Real-time conditions for your fields</p>
-//         </div>
-//         <button onClick={refresh} disabled={spinning || !cropId}
-//           className="btn btn-outline flex items-center gap-2 self-start">
-//           <RefreshCw className={`w-4 h-4 ${spinning ? "animate-spin" : ""}`} /> Refresh
-//         </button>
-//       </div>
-
-//       {!cropsLoad && crops.length > 0 && (
-//         <div className="max-w-xs mb-6">
-//           <Select label="Field / Crop" value={cropId} onChange={e => setCropId(e.target.value)}>
-//             {crops.map(c => <option key={c._id} value={c._id}>{c.cropName} — {c.location?.city || "—"}</option>)}
-//           </Select>
-//         </div>
-//       )}
-
-//       {loading ? (
-//         <div className="space-y-5">
-//           <Skel className="h-72" />
-//           <div className="grid grid-cols-5 gap-3">{Array(5).fill(0).map((_, i) => <Skel key={i} className="h-36" />)}</div>
-//         </div>
-//       ) : error ? (
-//         <div className="card p-10 text-center">
-//           <p className="text-red-500 mb-2">{error}</p>
-//           <p className="text-[var(--muted)] text-sm">Check your OpenWeather API key and crop location.</p>
-//         </div>
-//       ) : !weather ? (
-//         <div className="card p-16 text-center animate-fade-in">
-//           <span className="text-6xl mb-4 block animate-float">🌤️</span>
-//           <p className="font-medium text-[var(--text)]">No weather data</p>
-//           <p className="text-[var(--muted)] text-sm mt-2">Add a crop with a location to view weather.</p>
-//         </div>
-//       ) : (
-//         <div className="space-y-6">
-//           <CurrentHero c={weather.current} />
-
-//           <div>
-//             <h2 className="font-display font-semibold text-xl text-[var(--text)] mb-4">5-Day Forecast</h2>
-//             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-//               {weather.forecast?.map((d, i) => <ForecastCard key={d.date} day={d} i={i} />)}
-//             </div>
-//           </div>
-
-//           {/* Smart alerts based on data */}
-//           {weather.forecast?.some(d => parseFloat(d.totalRain) > 5) && (
-//             <div className="card p-5" style={{ borderLeft: "4px solid #3b82f6" }}>
-//               <p className="font-medium text-[var(--text)]">🌧️ Rain Alert</p>
-//               <p className="text-sm text-[var(--text2)] mt-1">
-//                 Heavy rain expected. Consider pausing irrigation and checking field drainage.
-//               </p>
-//             </div>
-//           )}
-//           {weather.current.temp > 38 && (
-//             <div className="card p-5" style={{ borderLeft: "4px solid #f59e0b" }}>
-//               <p className="font-medium text-[var(--text)]">🌡️ Heat Alert</p>
-//               <p className="text-sm text-[var(--text2)] mt-1">
-//                 Temperature above 38°C. Increase irrigation frequency and avoid midday fieldwork.
-//               </p>
-//             </div>
-//           )}
-//         </div>
-//       )}
-//     </PageLayout>
-//   );
-// }
-
-
-
 
 // src/pages/WeatherPage.jsx
-
 import { useState, useEffect } from "react";
 import {
   CloudSun, Droplets, Wind, Thermometer,
@@ -197,7 +9,6 @@ import PageLayout from "../components/layout/PageLayout";
 import { cropAPI, weatherAPI } from "../services/api";
 import { Select, Spinner, Skel } from "../components/ui";
 
-// ── Weather emoji by description ───────────────────────────────────────────
 function weatherEmoji(desc = "") {
   const d = desc.toLowerCase();
   if (d.includes("thunder")) return "⛈️";
@@ -208,7 +19,6 @@ function weatherEmoji(desc = "") {
   return "🌤️";
 }
 
-// ── Gradient by description ────────────────────────────────────────────────
 function weatherGradient(desc = "") {
   const d = desc.toLowerCase();
   if (d.includes("thunder")) return ["#7c3aed", "#4c1d95"];
@@ -218,7 +28,6 @@ function weatherGradient(desc = "") {
   return ["#2a9a2a", "#1e7a1e"];
 }
 
-// ── Current weather hero ───────────────────────────────────────────────────
 function CurrentHero({ current }) {
   // Guard: if current is missing or malformed, show placeholder
   if (!current || typeof current !== "object") {
@@ -322,7 +131,6 @@ function CurrentHero({ current }) {
   );
 }
 
-// ── Forecast day card ──────────────────────────────────────────────────────
 function ForecastCard({ day, index }) {
   if (!day) return null;
 
@@ -362,7 +170,7 @@ function ForecastCard({ day, index }) {
   );
 }
 
-// ── Alert banner ───────────────────────────────────────────────────────────
+
 function Alert({ emoji, title, message, color }) {
   return (
     <div
@@ -377,9 +185,9 @@ function Alert({ emoji, title, message, color }) {
   );
 }
 
-// ── Main WeatherPage ───────────────────────────────────────────────────────
+
 export default function WeatherPage() {
-  // ── Always safe initial values ────────────────────────────────────────────
+
   const [crops,     setCrops]     = useState([]);
   const [cropId,    setCropId]    = useState("");
   const [weather,   setWeather]   = useState(null);

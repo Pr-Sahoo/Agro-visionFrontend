@@ -1,279 +1,3 @@
-// // src/pages/AIAdvisorPage.jsx
-
-// import { useState, useEffect, useRef } from "react";
-// import { Brain, Sprout, Send, Upload, X, Microscope, MessageSquare, Loader2 } from "lucide-react";
-// import PageLayout from "../components/layout/PageLayout";
-// import { cropAPI, aiAPI } from "../services/api";
-// import { Btn, Select, Badge, Spinner, ErrBox } from "../components/ui";
-
-// // ── Typing dots animation ──────────────────────────────────────────────────
-// function TypingDots() {
-//   return (
-//     <div className="flex gap-1.5 items-center px-4 py-3">
-//       {[0, 150, 300].map(d => (
-//         <div key={d} className="w-2 h-2 rounded-full bg-leaf-400"
-//           style={{ animation: `bounceDots 1.2s ease-in-out infinite`, animationDelay: `${d}ms` }} />
-//       ))}
-//     </div>
-//   );
-// }
-
-// // ── Chat message bubble ────────────────────────────────────────────────────
-// function Bubble({ role, content, idx }) {
-//   const isAI = role === "assistant";
-//   return (
-//     <div className={`flex gap-3 animate-slide-up ${isAI ? "" : "flex-row-reverse"}`}
-//       style={{ animationDelay: `${idx * 30}ms` }}>
-//       <div className={`w-8 h-8 rounded-xl shrink-0 flex items-center justify-center
-//         ${isAI ? "bg-leaf-500 shadow-[0_2px_12px_rgba(42,154,42,0.4)]" : "bg-[var(--bg2)] border border-[var(--border)]"}`}>
-//         {isAI ? <Brain className="w-4 h-4 text-white" /> : <span className="text-xs font-bold text-[var(--text)]">U</span>}
-//       </div>
-//       <div className={`max-w-[78%] px-4 py-3 rounded-3xl text-sm leading-relaxed
-//         ${isAI
-//           ? "card rounded-tl-lg ai-text text-[var(--text2)]"
-//           : "text-white rounded-tr-lg"}`}
-//         style={!isAI ? { background: "var(--green)" } : {}}>
-//         {content}
-//       </div>
-//     </div>
-//   );
-// }
-
-// // ── Image upload zone ──────────────────────────────────────────────────────
-// function UploadZone({ file, onFile, onRemove }) {
-//   const ref  = useRef();
-//   const [drag, setDrag] = useState(false);
-
-//   const drop = (e) => {
-//     e.preventDefault(); setDrag(false);
-//     const f = e.dataTransfer.files[0];
-//     if (f?.type.startsWith("image/")) onFile(f);
-//   };
-
-//   return file ? (
-//     <div className="relative rounded-2xl overflow-hidden border-2 border-leaf-400 animate-scale-in">
-//       <img src={URL.createObjectURL(file)} alt="crop" className="w-full h-44 object-cover" />
-//       <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-//       <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-//         <span className="text-white text-xs bg-black/40 px-2 py-1 rounded-full">{file.name} · {(file.size/1024).toFixed(0)}KB</span>
-//         <button onClick={onRemove}
-//           className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center hover:bg-red-600 transition-colors">
-//           <X className="w-3.5 h-3.5 text-white" />
-//         </button>
-//       </div>
-//     </div>
-//   ) : (
-//     <div
-//       onDrop={drop}
-//       onDragOver={e => { e.preventDefault(); setDrag(true); }}
-//       onDragLeave={() => setDrag(false)}
-//       onClick={() => ref.current?.click()}
-//       className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200
-//         ${drag ? "border-leaf-500 bg-leaf-50 dark:bg-leaf-950/20" : "border-[var(--border)] hover:border-leaf-400 hover:bg-[var(--bg2)]"}`}>
-//       <input ref={ref} type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
-//         onChange={e => e.target.files[0] && onFile(e.target.files[0])} />
-//       <Upload className="w-8 h-8 text-[var(--muted)] mx-auto mb-3" />
-//       <p className="text-sm font-medium text-[var(--text)]">Drop crop photo here</p>
-//       <p className="text-xs text-[var(--muted)] mt-1">JPEG · PNG · WebP · Max 5MB</p>
-//     </div>
-//   );
-// }
-
-// // ── Disease detection panel ────────────────────────────────────────────────
-// function DiseasePanel({ crops }) {
-//   const [cropId, setCropId] = useState("");
-//   const [file,   setFile]   = useState(null);
-//   const [result, setResult] = useState("");
-//   const [loading, setLoading] = useState(false);
-//   const [error,   setError]   = useState("");
-
-//   const detect = async () => {
-//     if (!cropId || !file) { setError("Select a crop and upload an image."); return; }
-//     setError(""); setLoading(true); setResult("");
-//     try { const d = await aiAPI.detectDisease(cropId, file); setResult(d.diagnosis); }
-//     catch (err) { setError(err.message); }
-//     finally     { setLoading(false); }
-//   };
-
-//   return (
-//     <div className="space-y-5">
-//       <Select label="Select Crop" value={cropId} onChange={e => setCropId(e.target.value)}>
-//         <option value="">Choose crop…</option>
-//         {crops.map(c => <option key={c._id} value={c._id}>{c.cropName}</option>)}
-//       </Select>
-//       <UploadZone file={file} onFile={setFile} onRemove={() => setFile(null)} />
-//       <ErrBox msg={error} />
-//       <Btn onClick={detect} loading={loading} className="w-full" size="lg">
-//         <Microscope className="w-5 h-5" />
-//         {loading ? "Analyzing…" : "Detect Disease"}
-//       </Btn>
-//       {result && (
-//         <div className="card p-5 animate-slide-up">
-//           <div className="flex items-center gap-2 mb-4">
-//             <div className="w-8 h-8 rounded-xl bg-leaf-500 flex items-center justify-center">
-//               <Brain className="w-4 h-4 text-white" />
-//             </div>
-//             <span className="font-semibold text-[var(--text)]">Disease Analysis</span>
-//             <Badge variant="green">AI</Badge>
-//           </div>
-//           <p className="ai-text text-sm text-[var(--text2)]">{result}</p>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-// // ── Chat advice panel ──────────────────────────────────────────────────────
-// function AdvicePanel({ crops }) {
-//   const [cropId, setCropId]   = useState("");
-//   const [q,      setQ]        = useState("");
-//   const [msgs,   setMsgs]     = useState([]);
-//   const [loading, setLoading] = useState(false);
-//   const [error,   setError]   = useState("");
-//   const chatRef = useRef(null);
-
-//   useEffect(() => {
-//     chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
-//   }, [msgs, loading]);
-
-//   const ask = async () => {
-//     if (!cropId) { setError("Select a crop first."); return; }
-//     if (!q.trim()) return;
-//     const msg = q.trim(); setQ(""); setError("");
-//     setMsgs(p => [...p, { role: "user", content: msg }]);
-//     setLoading(true);
-//     try {
-//       const d = await aiAPI.getAdvice(cropId, msg);
-//       setMsgs(p => [...p, { role: "assistant", content: d.advice }]);
-//     } catch (err) { setError(err.message); }
-//     finally       { setLoading(false); }
-//   };
-
-//   const SUGGESTIONS = ["When should I irrigate?", "What pests to watch for?", "Is it time to harvest?"];
-
-//   return (
-//     <div className="space-y-4">
-//       <Select label="Crop to ask about" value={cropId}
-//         onChange={e => { setCropId(e.target.value); setMsgs([]); }}>
-//         <option value="">Choose crop…</option>
-//         {crops.map(c => <option key={c._id} value={c._id}>{c.cropName} — {c.location?.city || "—"}</option>)}
-//       </Select>
-
-//       {/* Chat area */}
-//       <div ref={chatRef}
-//         className="h-80 overflow-y-auto rounded-3xl p-4 space-y-4 scroll-smooth"
-//         style={{ background: "var(--bg2)" }}>
-//         {msgs.length === 0 && !loading && (
-//           <div className="h-full flex flex-col items-center justify-center text-center animate-fade-in">
-//             <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
-//               style={{ background: "rgba(42,154,42,0.1)" }}>
-//               <Brain className="w-7 h-7 text-leaf-500 animate-pulse-soft" />
-//             </div>
-//             <p className="font-medium text-[var(--text)] mb-1">AgroVision AI</p>
-//             <p className="text-xs text-[var(--muted)] max-w-xs mb-4">Select a crop and ask anything — irrigation, pests, weather risks, harvesting tips…</p>
-//             <div className="flex flex-wrap gap-2 justify-center">
-//               {SUGGESTIONS.map(s => (
-//                 <button key={s} onClick={() => setQ(s)}
-//                   className="px-3 py-1.5 text-xs rounded-full border border-[var(--border)] hover:border-leaf-400 text-[var(--text2)] hover:text-[var(--text)] transition-all">
-//                   {s}
-//                 </button>
-//               ))}
-//             </div>
-//           </div>
-//         )}
-//         {msgs.map((m, i) => <Bubble key={i} {...m} idx={i} />)}
-//         {loading && (
-//           <div className="flex gap-3 animate-fade-in">
-//             <div className="w-8 h-8 rounded-xl bg-leaf-500 flex items-center justify-center shrink-0">
-//               <Brain className="w-4 h-4 text-white" />
-//             </div>
-//             <div className="card rounded-tl-lg">
-//               <TypingDots />
-//             </div>
-//           </div>
-//         )}
-//       </div>
-
-//       {error && <p className="text-red-500 text-sm">{error}</p>}
-
-//       {/* Input row */}
-//       <div className="flex gap-3">
-//         <textarea value={q} onChange={e => setQ(e.target.value)}
-//           onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); } }}
-//           placeholder="Ask about your crop… (Enter to send)"
-//           rows={2} disabled={!cropId}
-//           className="field flex-1 resize-none" />
-//         <Btn onClick={ask} loading={loading} disabled={!cropId || !q.trim()} className="self-end px-4 py-3">
-//           <Send className="w-5 h-5" />
-//         </Btn>
-//       </div>
-//     </div>
-//   );
-// }
-
-// // ── Main ───────────────────────────────────────────────────────────────────
-// export default function AIAdvisorPage() {
-//   const [tab,     setTab]     = useState("advice");
-//   const [crops,   setCrops]   = useState([]);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     cropAPI.getAll().then(({ crops }) => setCrops(crops)).catch(console.error).finally(() => setLoading(false));
-//   }, []);
-
-//   return (
-//     <PageLayout>
-//       <div className="max-w-2xl mx-auto">
-//         {/* Header */}
-//         <div className="flex items-center gap-4 mb-8">
-//           <div className="w-12 h-12 rounded-2xl bg-leaf-500 flex items-center justify-center shadow-[0_4px_18px_rgba(42,154,42,0.35)]">
-//             <Brain className="w-6 h-6 text-white" />
-//           </div>
-//           <div>
-//             <h1 className="font-display text-3xl font-bold text-[var(--text)]">AI Advisor</h1>
-//             <p className="text-[var(--text2)] text-sm">Gemini · Contextual farming intelligence</p>
-//           </div>
-//         </div>
-
-//         {/* Tab bar */}
-//         <div className="flex gap-2 p-1 rounded-2xl mb-6" style={{ background: "var(--bg2)" }}>
-//           {[
-//             { id: "advice",  icon: MessageSquare, label: "AI Chat"           },
-//             { id: "disease", icon: Microscope,    label: "Disease Detection" },
-//           ].map(({ id, icon: I, label }) => (
-//             <button key={id} onClick={() => setTab(id)}
-//               className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
-//                 ${tab === id ? "card text-[var(--text)] shadow-md border border-[var(--border)]" : "text-[var(--muted)] hover:text-[var(--text)]"}`}>
-//               <I className="w-4 h-4" />
-//               {label}
-//             </button>
-//           ))}
-//         </div>
-
-//         {/* Content */}
-//         <div className="card p-6">
-//           {loading
-//             ? <div className="flex justify-center py-16"><Spinner size="lg" /></div>
-//             : crops.length === 0
-//               ? <div className="text-center py-12">
-//                   <Sprout className="w-12 h-12 text-[var(--muted)] mx-auto mb-4" />
-//                   <p className="font-medium text-[var(--text)] mb-2">No crops yet</p>
-//                   <p className="text-sm text-[var(--muted)] mb-6">Add a crop first to use the AI advisor.</p>
-//                   <a href="/crops" className="btn btn-green inline-flex gap-2"><Sprout className="w-4 h-4" /> Add a Crop</a>
-//                 </div>
-//               : tab === "advice" ? <AdvicePanel crops={crops} /> : <DiseasePanel crops={crops} />
-//           }
-//         </div>
-//       </div>
-//     </PageLayout>
-//   );
-// }
-
-
-
-
-
-
 
 // src/pages/AIAdvisorPage.jsx
 
@@ -287,7 +11,6 @@ import PageLayout from "../components/layout/PageLayout";
 import { cropAPI, aiAPI } from "../services/api";
 import { Btn, Select, Badge, Spinner, ErrBox } from "../components/ui";
 
-// ── Typing dots ────────────────────────────────────────────────────────────
 function TypingDots() {
   return (
     <div className="flex gap-1.5 items-center px-4 py-3.5">
@@ -306,7 +29,6 @@ function TypingDots() {
   );
 }
 
-// ── Chat bubble ────────────────────────────────────────────────────────────
 function Bubble({ role, content, idx }) {
   const isAI = role === "assistant";
   return (
@@ -353,7 +75,6 @@ function Bubble({ role, content, idx }) {
   );
 }
 
-// ── Image upload zone ──────────────────────────────────────────────────────
 function UploadZone({ file, onFile, onRemove }) {
   const ref  = useRef();
   const [drag, setDrag] = useState(false);
@@ -424,7 +145,7 @@ function UploadZone({ file, onFile, onRemove }) {
   );
 }
 
-// ── Disease detection panel ────────────────────────────────────────────────
+
 function DiseasePanel({ crops }) {
   const [cropId,  setCropId]  = useState("");
   const [file,    setFile]    = useState(null);
@@ -632,10 +353,10 @@ function AdvicePanel({ crops }) {
   );
 }
 
-// ── Main AIAdvisorPage ─────────────────────────────────────────────────────
+
 export default function AIAdvisorPage() {
   const [tab,     setTab]     = useState("advice");
-  // ── ALWAYS [] — never undefined ─────────────────────────────────────────
+
   const [crops,   setCrops]   = useState([]);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState("");
@@ -652,7 +373,7 @@ export default function AIAdvisorPage() {
       } catch (e) {
         console.error("AIAdvisorPage load error:", e);
         setError(e.message);
-        setCrops([]); // keep array valid on error
+        setCrops([]); 
       } finally {
         setLoading(false);
       }
