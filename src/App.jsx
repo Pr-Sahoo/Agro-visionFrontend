@@ -1,212 +1,3 @@
-// import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-// import { AuthProvider, useAuth }  from "./context/AuthContext";
-// import { ThemeProvider }          from "./context/ThemeContext";
-// import { Spinner }                from "./components/ui";
- 
-// import { RegisterPage, VerifyOTPPage, LoginPage } from "./pages/AuthPages";
-// import DashboardPage  from "./pages/DashboardPage";
-// import CropsPage      from "./pages/CropsPage";
-// import AIAdvisorPage  from "./pages/AIAdvisorPage";
-// import WeatherPage    from "./pages/WeatherPage";
- 
-
-// function Protected({ children }) {
-//   const { user, loading } = useAuth();
-//   if (loading) {
-//     return (
-//       <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: "var(--bg)" }}>
-//         <Spinner size="lg" />
-//         <p className="text-[var(--muted)] text-sm mt-4 font-medium">Loading AgroVision…</p>
-//       </div>
-//     );
-//   }
-//   return user ? children : <Navigate to="/login" replace />;
-// }
- 
-// function Public({ children }) {
-//   const { user, loading } = useAuth();
-//   if (loading) return null;
-//   return user ? <Navigate to="/dashboard" replace /> : children;
-// };
- 
-// function AppRoutes() {
-//   return (
-//     <Routes>
-//       {/* Public */}
-//       <Route path="/register"   element={<Public><RegisterPage  /></Public>} />
-//       <Route path="/verify-otp" element={<Public><VerifyOTPPage /></Public>} />
-//       <Route path="/login"      element={<Public><LoginPage     /></Public>} />
- 
-//       {/* Protected */}
-//       <Route path="/dashboard"  element={<Protected><DashboardPage  /></Protected>} />
-//       <Route path="/crops"      element={<Protected><CropsPage      /></Protected>} />
-//       <Route path="/weather"    element={<Protected><WeatherPage    /></Protected>} />
-//       <Route path="/ai-advisor" element={<Protected><AIAdvisorPage  /></Protected>} />
- 
-//       {/* Default */}
-//       <Route path="/"  element={<Navigate to="/dashboard" replace />} />
-//       <Route path="*"  element={<Navigate to="/dashboard" replace />} />
-//     </Routes>
-//   );
-// }
- 
-// export default function App() {
-//   return (
-//     <BrowserRouter>
-//       {/* ThemeProvider — controls dark/light class on <html> */}
-//       <ThemeProvider>
-//         {/* AuthProvider — controls global user session */}
-//         <AuthProvider>
-//           <AppRoutes />
-//         </AuthProvider>
-//       </ThemeProvider>
-//     </BrowserRouter>
-//   );
-// }
- 
-
-// src/App.jsx
-
-// import { useEffect, useState } from "react";
-// import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-// import { AuthProvider, useAuth }  from "./context/AuthContext";
-// import { ThemeProvider }          from "./context/ThemeContext";
-// import { Spinner }                from "./components/ui";
-// import { pingBackend }            from "./services/api";
-
-// import { RegisterPage, VerifyOTPPage, LoginPage } from "./pages/AuthPages";
-// import DashboardPage  from "./pages/DashboardPage";
-// import CropsPage      from "./pages/CropsPage";
-// import AIAdvisorPage  from "./pages/AIAdvisorPage";
-// import WeatherPage    from "./pages/WeatherPage";
-
-// // ── Protected route ────────────────────────────────────────────────────────
-// function Protected({ children }) {
-//   const { user, loading } = useAuth();
-//   if (loading) return (
-//     <div className="min-h-screen flex flex-col items-center justify-center"
-//       style={{ background: "var(--bg)" }}>
-//       <Spinner size="lg" />
-//       <p className="text-sm mt-4 font-medium" style={{ color: "var(--muted)" }}>
-//         Loading AgroVision…
-//       </p>
-//     </div>
-//   );
-//   return user ? children : <Navigate to="/login" replace />;
-// }
-
-// // ── Public route (redirect if already logged in) ───────────────────────────
-// function Public({ children }) {
-//   const { user, loading } = useAuth();
-//   if (loading) return null;
-//   return user ? <Navigate to="/dashboard" replace /> : children;
-// }
-
-// // ── Backend wake-up banner ─────────────────────────────────────────────────
-// // Shows a notice when Render is cold-starting so users
-// // understand why the first request is slow.
-// function WakingUpBanner() {
-//   const [show,   setShow]   = useState(false);
-//   const [awake,  setAwake]  = useState(false);
-
-//   useEffect(() => {
-//     // Show the banner after 2 seconds if backend isn't awake yet
-//     const showTimer = setTimeout(() => setShow(true), 2000);
-
-//     pingBackend().then(ok => {
-//       if (ok) {
-//         setAwake(true);
-//         setTimeout(() => setShow(false), 2000); // hide after 2s
-//       }
-//     });
-
-//     return () => clearTimeout(showTimer);
-//   }, []);
-
-//   if (!show) return null;
-
-//   return (
-//     <div
-//       className="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl shadow-xl animate-slide-up flex items-center gap-3"
-//       style={{
-//         background: awake ? "#166534" : "#1e3a1e",
-//         border: `1px solid ${awake ? "#22c55e" : "#2d5a2d"}`,
-//         color: "#fff",
-//         minWidth: "260px"
-//       }}
-//     >
-//       {awake ? (
-//         <>
-//           <span className="text-green-400 text-lg">✓</span>
-//           <span className="text-sm font-medium">Server is ready!</span>
-//         </>
-//       ) : (
-//         <>
-//           <Spinner size="sm" />
-//           <div>
-//             <p className="text-sm font-medium">Server is waking up…</p>
-//             <p className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
-//               Render free tier takes ~15 sec on cold start
-//             </p>
-//           </div>
-//         </>
-//       )}
-//     </div>
-//   );
-// }
-
-// // ── Routes ─────────────────────────────────────────────────────────────────
-// function AppRoutes() {
-//   return (
-//     <Routes>
-//       <Route path="/register"   element={<Public><RegisterPage  /></Public>} />
-//       <Route path="/verify-otp" element={<Public><VerifyOTPPage /></Public>} />
-//       <Route path="/login"      element={<Public><LoginPage     /></Public>} />
-//       <Route path="/dashboard"  element={<Protected><DashboardPage  /></Protected>} />
-//       <Route path="/crops"      element={<Protected><CropsPage      /></Protected>} />
-//       <Route path="/weather"    element={<Protected><WeatherPage    /></Protected>} />
-//       <Route path="/ai-advisor" element={<Protected><AIAdvisorPage  /></Protected>} />
-//       <Route path="/"           element={<Navigate to="/dashboard" replace />} />
-//       <Route path="*"           element={<Navigate to="/dashboard" replace />} />
-//     </Routes>
-//   );
-// }
-
-// export default function App() {
-//   return (
-//     <BrowserRouter>
-//       <ThemeProvider>
-//         <AuthProvider>
-//           <WakingUpBanner />
-//           <AppRoutes />
-//         </AuthProvider>
-//       </ThemeProvider>
-//     </BrowserRouter>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // src/App.jsx
 
@@ -222,7 +13,6 @@ import CropsPage      from "./pages/CropsPage";
 import AIAdvisorPage  from "./pages/AIAdvisorPage";
 import WeatherPage    from "./pages/WeatherPage";
 
-// ── Protected route ────────────────────────────────────────────────────────
 function Protected({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <FullScreenLoader text="Loading…" />;
@@ -235,7 +25,6 @@ function Public({ children }) {
   return user ? <Navigate to="/dashboard" replace /> : children;
 }
 
-// ── Full screen loader ─────────────────────────────────────────────────────
 function FullScreenLoader({ text }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center"
@@ -246,9 +35,7 @@ function FullScreenLoader({ text }) {
   );
 }
 
-// ── Wake-up splash screen ──────────────────────────────────────────────────
-// Shows ONLY when the backend is cold-starting.
-// Once awake, it disappears and shows the real app.
+
 function WakeUpScreen({ onAwake }) {
   const [dots,    setDots]    = useState(".");
   const [elapsed, setElapsed] = useState(0);
@@ -308,7 +95,6 @@ function WakeUpScreen({ onAwake }) {
       style={{ background: "var(--bg)" }}>
       <div className="w-full max-w-xs text-center animate-fade-in">
 
-        {/* Logo */}
         <div className="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center text-3xl"
           style={{ background: "var(--green)", boxShadow: "0 8px 32px rgba(42,154,42,0.35)" }}>
           🌿
@@ -359,7 +145,6 @@ function WakeUpScreen({ onAwake }) {
   );
 }
 
-// ── Routes ─────────────────────────────────────────────────────────────────
 function AppRoutes() {
   return (
     <Routes>
@@ -376,7 +161,6 @@ function AppRoutes() {
   );
 }
 
-// ── Root App ───────────────────────────────────────────────────────────────
 export default function App() {
   // "checking" | "waking" | "awake" | "failed"
   const [serverStatus, setServerStatus] = useState("checking");
@@ -393,7 +177,6 @@ export default function App() {
     <BrowserRouter>
       <ThemeProvider>
         <AuthProvider>
-          {/* Show wake-up screen until server is ready */}
           {serverStatus === "awake" ? (
             <AppRoutes />
           ) : (
