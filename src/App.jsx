@@ -10,7 +10,7 @@ import { wakeUpBackend }         from "./services/api";
 import { RegisterPage, VerifyOTPPage, LoginPage } from "./pages/AuthPages";
 import DashboardPage  from "./pages/DashboardPage";
 import CropsPage      from "./pages/CropsPage";
-import AIAdvisorPage  from "./pages/AIAdvisorPage";
+import AIAdvisorPage  from "./pages/AiAdvisorPage";
 import WeatherPage    from "./pages/WeatherPage";
 
 function Protected({ children }) {
@@ -35,19 +35,16 @@ function FullScreenLoader({ text }) {
   );
 }
 
-
 function WakeUpScreen({ onAwake }) {
   const [dots,    setDots]    = useState(".");
   const [elapsed, setElapsed] = useState(0);
   const [failed,  setFailed]  = useState(false);
 
-  // Animate the dots
   useEffect(() => {
     const t = setInterval(() => setDots(d => d.length >= 3 ? "." : d + "."), 600);
     return () => clearInterval(t);
   }, []);
 
-  // Count seconds
   useEffect(() => {
     const t = setInterval(() => setElapsed(s => s + 1), 1000);
     return () => clearInterval(t);
@@ -95,6 +92,7 @@ function WakeUpScreen({ onAwake }) {
       style={{ background: "var(--bg)" }}>
       <div className="w-full max-w-xs text-center animate-fade-in">
 
+        {/* Logo */}
         <div className="w-16 h-16 rounded-2xl mx-auto mb-6 flex items-center justify-center text-3xl"
           style={{ background: "var(--green)", boxShadow: "0 8px 32px rgba(42,154,42,0.35)" }}>
           🌿
@@ -115,7 +113,6 @@ function WakeUpScreen({ onAwake }) {
           />
         </div>
 
-        {/* Status message */}
         <p className="text-sm font-medium" style={{ color: "var(--text2)" }}>
           {currentMsg}
         </p>
@@ -123,8 +120,7 @@ function WakeUpScreen({ onAwake }) {
           {elapsed}s elapsed
         </p>
 
-        {/* Explanation after 8s */}
-        {elapsed >= 8 && (
+        {elapsed >= 5 && (
           <div
             className="mt-8 p-4 rounded-2xl text-left animate-fade-in"
             style={{ background: "var(--bg2)" }}
@@ -166,8 +162,6 @@ export default function App() {
   const [serverStatus, setServerStatus] = useState("checking");
 
   useEffect(() => {
-    // Start pinging the backend immediately when app loads.
-    // wakeUpBackend polls /api/ping every 3s for up to 45s.
     wakeUpBackend((status) => {
       setServerStatus(status);
     });
